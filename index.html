@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="auth-page" class="auth-container">
+        <div class="auth-overlay">
+            <div class="auth-card">
+                <div class="auth-logo">
+                    <i class="fas fa-wallet"></i>
+                    <h2 class="main-logo-text">Expense Tracker</h2>
+                </div>
+                
+                <div id="login-form">
+                    <h1 data-t="login">Login</h1>
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="log-user" placeholder="Username">
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="log-pass" placeholder="Password">
+                    </div>
+                    <button onclick="loginUser()" class="btn-main" data-t="loginBtn">LOGIN</button>
+                    <div class="auth-footer">
+                        <p onclick="toggleAuth('reg')" data-t="newAcc">New User? Register</p>
+                        <p onclick="showResetForm()" data-t="forgot" style="cursor:pointer; color:var(--purp);">Forgot Password?</p>
+                    </div>
+                </div>
+
+                <div id="reg-form" class="hidden">
+    <h1 data-t="register">Register</h1>
+    
+    <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input type="text" id="reg-user" placeholder="Choose Username">
+    </div>
+
+    <div class="input-group">
+        <i class="fas fa-birthday-cake"></i>
+        <input type="date" id="reg-dob">
+    </div>
+
+    <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="reg-pass" placeholder="Create Password">
+    </div>
+    
+    <button onclick="registerUser()" class="btn-main" data-t="regBtn">CREATE ACCOUNT</button>
+    <p class="auth-links" onclick="toggleAuth('login')" data-t="backLog">Back to Login</p>
+</div> <div id="reset-form" class="hidden">
+    <h1>Reset Password</h1>
+    <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input type="text" id="reset-user" placeholder="Enter Username">
+    </div>
+    <div class="input-group">
+        <i class="fas fa-birthday-cake"></i>
+        <input type="date" id="reset-dob">
+    </div>
+    <div class="input-group">
+        <i class="fas fa-key"></i>
+        <input type="password" id="reset-new-pass" placeholder="Enter New Password">
+    </div>
+    <button onclick="performReset()" class="btn-main">RESET & LOGIN</button>
+    <p class="auth-links" onclick="hideResetForm()">Back to Login</p>
+</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-app" class="hidden">
+        <header>
+            <div class="header-brand">
+                <i class="fas fa-coins project-logo"></i>
+                <span id="header-username">User</span>
+            </div>
+            <i class="fas fa-sign-out-alt logout-icon" onclick="logout()"></i>
+        </header>
+
+        <nav class="top-nav">
+    <div onclick="showPage('analysis-page')">
+        <i class="fas fa-home"></i><span data-t="navHome">Home</span>
+    </div>
+    
+    <div onclick="showPage('category-page')">
+        <i class="fas fa-tags"></i><span data-t="navCat">Categories</span>
+    </div>
+
+    <div onclick="showPage('ai-planner-page')" style="color: var(--purp); font-weight: bold;">
+        <i class="fas fa-robot"></i><span>AI Advisor</span>
+    </div>
+
+    <div onclick="showPage('settings-page')">
+        <i class="fas fa-cog"></i><span data-t="navSet">Settings</span>
+    </div>
+
+    <div onclick="showPage('profile-page')">
+        <i class="fas fa-user"></i><span data-t="navProf">Profile</span>
+    </div>
+</nav>
+
+        <div id="analysis-page" class="sub-page">
+           <div class="summary-card" style="text-align:center; margin-bottom: 10px;">
+    <div class="month-row-clean" style="display:flex; justify-content:center; align-items:center; gap:20px;">
+        <i class="fas fa-chevron-left" onclick="changeMonth(-1)"></i>
+        <h2 id="month-display" style="margin:0;">Month Year</h2>
+        <i class="fas fa-chevron-right" onclick="changeMonth(1)"></i>
+    </div>
+</div>
+
+<div class="stats-row-container">
+    <div class="stat-card-hex">
+        <small data-t="income">Income</small>
+        <p id="sum-inc" style="color:var(--green)">0</p>
+    </div>
+    <div class="stat-card-hex">
+        <small data-t="expense">Expense</small>
+        <p id="sum-exp" style="color:var(--red)">0</p>
+    </div>
+    <div class="stat-card-hex">
+        <small data-t="balance">Balance</small>
+        <p id="sum-bal">0</p>
+    </div>
+</div> 
+
+            <div class="summary-card">
+                <h3 data-t="smsTitle">SMS Paste</h3>
+                <textarea id="sms-input" class="large-field" placeholder="Example: Spent 500 on Petrol"></textarea>
+                <button onclick="processSMS()" class="btn-main" data-t="detectBtn">Add SMS</button>
+            </div>
+
+            <div class="chart-container-fixed">
+                <canvas id="expenseChart"></canvas>
+            </div>
+
+            <div class="list-section">
+                <div class="section-header">
+                    <h3><span data-t="incTitle">INCOME</span> <i class="fas fa-plus-circle plus-icon" onclick="openModal('income-modal')"></i></h3>
+                </div>
+                <div id="income-list"></div>
+            </div>
+
+            <div class="list-section">
+                <div class="section-header">
+                    <h3><span data-t="transHeader">TRANSACTIONS</span> <i class="fas fa-plus-circle plus-icon" onclick="openModal('add-modal')"></i></h3>
+                </div>
+                <div id="transaction-list"></div>
+            </div>
+        </div>
+
+        <div id="category-page" class="sub-page hidden">
+            <div class="summary-card">
+                <h3 data-t="newCat">New Category</h3>
+                <input type="text" id="c-name" class="large-field" placeholder="Name (e.g., Food)">
+                <input type="number" id="c-limit" class="large-field" placeholder="Limit Amount">
+                <input type="number" id="c-alert" class="large-field" placeholder="Alert % (e.g., 80)">
+                <button onclick="saveNewCat()" class="btn-main" data-t="saveCat">Save Category</button>
+            </div>
+            <div id="cat-list-display"></div>
+        </div>
+        <div id="ai-planner-page" class="sub-page hidden">
+    <div class="summary-card">
+        <h2 style="color:var(--purp); margin-bottom:15px;"><i class="fas fa-brain"></i> AI Smart Planner</h2>
+        
+        <div class="v-input-group">
+            <label>Monthly Savings Goal</label>
+            <input type="number" id="ai-goal" class="large-field" placeholder="How much to save?">
+        </div>
+
+        <div class="v-input-group">
+            <label>Fixed Bills (Rent/EMI/Current Commitments)</label>
+            <input type="number" id="ai-fixed" class="large-field" placeholder="Total fixed costs">
+        </div>
+
+        <div class="v-input-group">
+            <label>Lifestyle Preference</label>
+            <select id="ai-style" class="large-field">
+                <option value="0.2">Frugal (Save Aggressively)</option>
+                <option value="0.4" selected>Balanced (Moderate)</option>
+                <option value="0.6">Relaxed (Comfort focus)</option>
+            </select>
+        </div>
+
+        <button onclick="runAIAnalysis()" class="btn-main" style="background:var(--purp)">GENERATE AI STRATEGY</button>
+    </div>
+
+    <div id="ai-result-card" class="summary-card hidden" style="border-top: 5px solid var(--purp); background: #fdfbff;">
+    <div id="ai-output-content"></div>
+
+    <div id="ai-action-area" style="margin-top: 20px; text-align: center;"></div>
+</div>
+</div>
+        <div id="settings-page" class="sub-page hidden">
+            <div class="summary-card">
+             <h3 data-t="preferences">Settings</h3>
+<div class="settings-horizontal">
+    <div class="v-input-group">
+        <label data-t="lang">Language</label>
+        <select id="s-lang" class="large-field" onchange="updatePref()"></select>
+    </div>
+    <div class="v-input-group">
+        <label data-t="currency">Currency</label>
+        <select id="s-cur" class="large-field" onchange="updatePref()"></select>
+    </div>
+</div>   
+            </div>
+            <div class="summary-card">
+                <h3 data-t="resetPass">Security</h3>
+                <input type="password" id="old-pass" placeholder="Current Password" class="large-field">
+                <input type="password" id="new-pass" placeholder="New Password" class="large-field">
+                <button onclick="changePassword()" class="btn-main">Update Password</button>
+            </div>
+            <div class="summary-card">
+    <h3 data-t="toolsHeader">Utility Tools</h3>
+    <div class="tools-btn-group">
+        <button onclick="openTool('calc-modal')" class="btn-tool"><i class="fas fa-calculator"></i> Open Calculator</button>
+        <button onclick="openTool('cal-modal')" class="btn-tool"><i class="fas fa-calendar-alt"></i> Open Calendar</button>
+    </div>
+</div>
+
+<div id="calc-modal" class="modal hidden">
+    <div class="modal-content tool-modal">
+        <h3 data-t="calcTitle">Calculator</h3>
+        <input type="text" id="calc-display" readonly class="calc-screen">
+        <div class="calc-grid">
+            <button onclick="calcIn('7')">7</button><button onclick="calcIn('8')">8</button><button onclick="calcIn('9')">9</button><button class="op" onclick="calcIn('/')">/</button>
+            <button onclick="calcIn('4')">4</button><button onclick="calcIn('5')">5</button><button onclick="calcIn('6')">6</button><button class="op" onclick="calcIn('*')">×</button>
+            <button onclick="calcIn('1')">1</button><button onclick="calcIn('2')">2</button><button onclick="calcIn('3')">3</button><button class="op" onclick="calcIn('-')">-</button>
+            <button class="clr" onclick="calcClr()">C</button><button onclick="calcIn('0')">0</button><button class="eq" onclick="calcRes()">=</button><button class="op" onclick="calcIn('+')">+</button>
+        </div>
+        <button onclick="closeTool('calc-modal')" class="btn-cancel" style="margin-top:15px">Cancel</button>
+    </div>
+</div>
+
+<div id="cal-modal" class="modal hidden">
+    <div class="modal-content tool-modal">
+        <div class="cal-head">
+            <button onclick="moveCal(-1)"><i class="fas fa-chevron-left"></i></button>
+            <h3 id="cal-month-year"></h3>
+            <button onclick="moveCal(1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div id="cal-grid" class="cal-grid"></div>
+        <button onclick="closeTool('cal-modal')" class="btn-cancel" style="margin-top:15px">Cancel</button>
+    </div>
+</div>
+            
+        </div>
+        
+        
+<div id="profile-page" class="sub-page hidden">
+    <div class="profile-container">
+        <div class="profile-header-card">
+            <div class="avatar-wrapper">
+                <img id="p-img" src="https://via.placeholder.com/120" class="profile-avatar">
+                <input type="file" id="p-upload" hidden onchange="loadImg(this)">
+                <button class="btn-edit-avatar" onclick="document.getElementById('p-upload').click()">
+                    <i class="fas fa-camera"></i>
+                </button>
+            </div>
+            <div style="text-align: left;">
+                <h2 id="display-name-heading" style="margin:0; color:var(--purp);">User Name</h2>
+                <p style="margin:5px 0 0; color:#636e72;">Personal Account</p>
+            </div>
+        </div>
+
+        <div class="profile-details-grid">
+            <div class="v-input-group">
+                <label><i class="fas fa-user"></i> <span>Full Name</span></label>
+                <input type="text" id="p-name" placeholder="Enter name">
+            </div>
+
+            <div class="v-input-group">
+                <label><i class="fas fa-calendar-alt"></i> <span>Age</span></label>
+                <input type="number" id="p-age" placeholder="Age">
+            </div>
+
+            <div class="v-input-group">
+                <label><i class="fas fa-birthday-cake"></i> <span>DOB</span></label>
+                <input type="date" id="p-dob">
+            </div>
+
+            <div class="v-input-group full-width">
+                <label><i class="fas fa-map-marker-alt"></i> <span>Address</span></label>
+                <textarea id="p-addr" rows="2" placeholder="Address"></textarea>
+            </div>
+
+            <button onclick="saveProf()" class="btn-save-profile full-width">
+                <i class="fas fa-check-circle"></i> Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+
+    <div id="income-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 data-t="addInc">Add Income</h3>
+            <input type="number" id="i-amt" class="large-field" placeholder="Amount">
+            <input type="date" id="i-date" class="large-field">
+            <input type="text" id="i-note" class="large-field" placeholder="Note (e.g., Salary)">
+            <div class="modal-btns">
+                <button onclick="addEntry('income')" class="btn-main" data-t="save">Save</button>
+                <button onclick="closeModal('income-modal')" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 data-t="addExp">New Transaction</h3>
+            <input type="number" id="e-amt" class="large-field" placeholder="Amount">
+            <input type="date" id="e-date" class="large-field">
+            <input type="text" id="e-note" class="large-field" placeholder="Where did you spend?">
+            <select id="e-cat" class="large-field"></select>
+            <div class="modal-btns">
+                <button onclick="addEntry('expense')" class="btn-main" data-t="save">Save</button>
+                <button onclick="closeModal('add-modal')" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="missing-cat-modal" class="modal hidden">
+    <div class="modal-content">
+        <h3 style="color:var(--purp)">Category Missing!</h3>
+        <p>The category in your SMS doesn't exist. Add it now:</p>
+        
+        <select id="m-name" class="large-field" style="width: 100%; margin-bottom: 10px;">
+            <option value="">-- Select Category --</option>
+        </select>
+        
+        <input type="number" id="m-limit" class="large-field" placeholder="Monthly Limit (Only for new)">
+        <input type="number" id="m-alert" class="large-field" placeholder="Alert % (e.g., 80)">
+        
+        <div class="modal-btns">
+            <button onclick="finalizeSMSWithCat()" class="btn-main">Add & Save SMS</button>
+            <button onclick="closeModal('missing-cat-modal')" class="btn-cancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
+    <div id="edit-trans-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 data-t="moveHeader">Move Transaction</h3>
+            <p id="edit-info" style="font-size:0.9rem; margin-bottom:10px"></p>
+            <label>Move to Category:</label>
+            <select id="move-cat-select" class="large-field"></select>
+            <div class="modal-btns">
+                <button onclick="moveTransaction()" class="btn-main">Move Now</button>
+                <button onclick="deleteTransaction()" class="btn-cancel">Delete Permanently</button>
+                <button onclick="closeModal('edit-trans-modal')" class="btn-cancel">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
